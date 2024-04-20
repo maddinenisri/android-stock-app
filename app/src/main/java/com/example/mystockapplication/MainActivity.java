@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onResponse(String response) {
                             try {
                                 JSONObject result = new JSONObject(response);
-                                portb_item.closed_price = (Double) result.get("c");
+                                portb_item.closed_price = Double.valueOf(result.get("c").toString());
                                 portb_item.change = (Double) result.get("d") ;
                                 portb_item.change_rate = (Double) result.get("dp");
                                 portb_item.shares_or_name = (String)result.get("name");
@@ -665,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject result = new JSONObject(response);
                                 stock_item item = new stock_item();
                                 item.ticker = ticker;
-                                item.closed_price = (Double) result.get("c");
+                                item.closed_price = Double.valueOf(result.get("c").toString());
                                 item.change = (Double) result.get("d") ;
                                 item.change_rate = (Double) result.get("dp");
                                 item.shares_or_name = (String)result.get("name");
