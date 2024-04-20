@@ -95,7 +95,7 @@ public class DetailStockActivity extends AppCompatActivity {
         String aWeekAgoString = jdf.format(new Date(aWeekAgo*1000L));
 
         RequestQueue q = Volley.newRequestQueue(this);
-        String url = String.format(backend + "/get_ticker_detail?ticker=%1$s&from_s=%2$s&from_n=%3$s&to_n=%4$s",
+        String url = String.format("http://192.168.86.212:3000/get_ticker_detail?ticker=%1$s&from_s=%2$s&from=%3$s&to=%4$s",
                 ticker,
                 "2022-01-01",
                 aWeekAgoString,
@@ -141,59 +141,59 @@ public class DetailStockActivity extends AppCompatActivity {
     List<detail_stock_item> detail_item_list;
     DetailStockAdapter detailStockAdapter;
     public void updateFromBackend() throws JSONException {
-        String ticker = ticker_data.getJSONObject("4p1").getString("ticker");
+        String ticker = ticker_data.getJSONObject("profile").getString("ticker");
         detail_item_list = new ArrayList<>();
-        detail_headline item_headline = new detail_headline(ticker_data.getJSONObject("4p1").getString("logo"),
-                ticker_data.getJSONObject("4p1").getString("ticker"),
-                ticker_data.getJSONObject("4p1").getString("name"),
-                ticker_data.getJSONObject("4p3").getDouble("c"),
-                ticker_data.getJSONObject("4p3").getDouble("d"),
-                ticker_data.getJSONObject("4p3").getDouble("dp"));
+        detail_headline item_headline = new detail_headline(ticker_data.getJSONObject("profile").getString("logo"),
+                ticker_data.getJSONObject("profile").getString("ticker"),
+                ticker_data.getJSONObject("profile").getString("name"),
+                ticker_data.getJSONObject("quote").getDouble("c"),
+                ticker_data.getJSONObject("quote").getDouble("d"),
+                ticker_data.getJSONObject("quote").getDouble("dp"));
 
         detail_chartone item_chartone = new detail_chartone(ticker);
 
-        double port_change=ticker_data.getJSONObject("4p3").getDouble("d");
+        double port_change=ticker_data.getJSONObject("quote").getDouble("d");
         double port_mktvalue=0;
         if(sharedPreferences.getInt("p_"+ticker+"_s",-1) != -1) {
-            port_mktvalue = (double) sharedPreferences.getInt("p_" + ticker + "_s", 0) * ticker_data.getJSONObject("4p3").getDouble("c");
+            port_mktvalue = (double) sharedPreferences.getInt("p_" + ticker + "_s", 0) * ticker_data.getJSONObject("quote").getDouble("c");
         }
         detail_portfolio item_portfolio= new detail_portfolio(sharedPreferences.getInt("p_"+ticker+"_s",0),
             (double)sharedPreferences.getFloat("p_"+ticker+"_a",0),
             (double)sharedPreferences.getFloat("p_"+ticker+"_t",0),
             port_change,
             port_mktvalue,
-            ticker_data.getJSONObject("4p3").getDouble("c"),
+            ticker_data.getJSONObject("quote").getDouble("c"),
             (double)sharedPreferences.getFloat("money",(float)0.0),
             ticker,
-            ticker_data.getJSONObject("4p1").getString("name"));
-        detail_stats item_stats = new detail_stats(ticker_data.getJSONObject("4p3").getDouble("o"),
-                ticker_data.getJSONObject("4p3").getDouble("h"),
-                ticker_data.getJSONObject("4p3").getDouble("l"),
-                ticker_data.getJSONObject("4p3").getDouble("pc"));
+            ticker_data.getJSONObject("profile").getString("name"));
+        detail_stats item_stats = new detail_stats(ticker_data.getJSONObject("quote").getDouble("o"),
+                ticker_data.getJSONObject("quote").getDouble("h"),
+                ticker_data.getJSONObject("quote").getDouble("l"),
+                ticker_data.getJSONObject("quote").getDouble("pc"));
         ArrayList<String> peers = new ArrayList<>();
 
         //peers
-        for(int i=0;i<ticker_data.getJSONArray("4p8").length();i++)
-            peers.add((String)ticker_data.getJSONArray("4p8").get(i));
-        detail_about item_about = new detail_about(ticker_data.getJSONObject("4p1").getString("ipo"),
-                ticker_data.getJSONObject("4p1").getString("finnhubIndustry"),
-                ticker_data.getJSONObject("4p1").getString("weburl"),
+        for(int i=0;i<ticker_data.getJSONArray("peers").length();i++)
+            peers.add((String)ticker_data.getJSONArray("peers").get(i));
+        detail_about item_about = new detail_about(ticker_data.getJSONObject("profile").getString("ipo"),
+                ticker_data.getJSONObject("profile").getString("finnhubIndustry"),
+                ticker_data.getJSONObject("profile").getString("weburl"),
                 peers);
 
         //calculate sentiment
         int t_r=0,t_t=0,p_r=0,p_t=0,n_r=0,n_t=0;
-        for(int i=0;i<ticker_data.getJSONObject("4p7").getJSONArray("twitter").length();i++){
-            t_t += ticker_data.getJSONObject("4p7").getJSONArray("twitter").getJSONObject(i).getInt("mention");
-            p_t += ticker_data.getJSONObject("4p7").getJSONArray("twitter").getJSONObject(i).getInt("positiveMention");
-            n_t += ticker_data.getJSONObject("4p7").getJSONArray("twitter").getJSONObject(i).getInt("negativeMention");
-        }
-        for(int i=0;i<ticker_data.getJSONObject("4p7").getJSONArray("reddit").length();i++){
-            t_r += ticker_data.getJSONObject("4p7").getJSONArray("reddit").getJSONObject(i).getInt("mention");
-            p_r += ticker_data.getJSONObject("4p7").getJSONArray("reddit").getJSONObject(i).getInt("positiveMention");
-            n_r += ticker_data.getJSONObject("4p7").getJSONArray("reddit").getJSONObject(i).getInt("negativeMention");
-        }
+//        for(int i=0;i<ticker_data.getJSONObject("sentiment").getJSONArray("twitter").length();i++){
+//            t_t += ticker_data.getJSONObject("sentiment").getJSONArray("twitter").getJSONObject(i).getInt("mention");
+//            p_t += ticker_data.getJSONObject("sentiment").getJSONArray("twitter").getJSONObject(i).getInt("positiveMention");
+//            n_t += ticker_data.getJSONObject("sentiment").getJSONArray("twitter").getJSONObject(i).getInt("negativeMention");
+//        }
+//        for(int i=0;i<ticker_data.getJSONObject("sentiment").getJSONArray("reddit").length();i++){
+//            t_r += ticker_data.getJSONObject("sentiment").getJSONArray("reddit").getJSONObject(i).getInt("mention");
+//            p_r += ticker_data.getJSONObject("sentiment").getJSONArray("reddit").getJSONObject(i).getInt("positiveMention");
+//            n_r += ticker_data.getJSONObject("sentiment").getJSONArray("reddit").getJSONObject(i).getInt("negativeMention");
+//        }
         detail_insights item_insights = new detail_insights(
-                ticker_data.getJSONObject("4p1").getString("name"),
+                ticker_data.getJSONObject("profile").getString("name"),
                 t_r,
                 t_t,
                 p_r,
@@ -213,18 +213,18 @@ public class DetailStockActivity extends AppCompatActivity {
         int news_cnt = 0;
         int news_cur = 0;
         while(news_cnt<20){
-            if(news_cur >= ticker_data.getJSONArray("4p5").length())
+            if(news_cur >= ticker_data.getJSONArray("news").length())
                 break;
-            if(ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("image").equals("")){
+            if(ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("image").equals("")){
                 news_cur++;
                 continue;
             }
-            detail_news item_news = new detail_news(ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("source"),
-                    ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getInt("datetime"),
-                    ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("headline"),
-                    ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("image"),
-                    ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("summary"),
-                    ticker_data.getJSONArray("4p5").getJSONObject(news_cur).getString("url"),
+            detail_news item_news = new detail_news(ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("source"),
+                    ticker_data.getJSONArray("news").getJSONObject(news_cur).getInt("datetime"),
+                    ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("headline"),
+                    ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("image"),
+                    ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("summary"),
+                    ticker_data.getJSONArray("news").getJSONObject(news_cur).getString("url"),
                     news_cnt==0?8:6
             );
             detail_item_list.add(item_news);
